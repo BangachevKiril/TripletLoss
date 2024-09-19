@@ -26,12 +26,12 @@ def generate_GMM_data(n_components,n_samples, dim_samples,SNR, dim_components = 
     noise= noise - sample_means_directional*noise_in_comp_direction
     samples= sample_means + noise
 
-    return (samples, idx)
+    return (components, samples, idx)
 
 
-
-(X,labels) = generate_GMM_data(5,20,10,100,2)
-print(labels)
+if __name__ == '__main__':
+    (X,labels) = generate_GMM_data(5,20,10,100,2)
+    print(labels)
 
 
 

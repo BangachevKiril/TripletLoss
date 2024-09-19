@@ -1,12 +1,16 @@
 import numpy as np
+import scipy.sparse as sp
 
-class ProjectionEmbedding:
+def evaluate(W,x):
+    return np.matmul(W.T,x)
 
-    def evaluate(W,x):
-        return np.matmul(W,x)
+def partialW(W,x): #partial w.r.t. W in direction V
+    (n,p) = W.shape
+    Z = np.zeros((p,n,p))
+    for i in range (p):
+        for j in range(n):
+            Z[i,j,i] = x[j]
+    return Z
 
-    def partialW(W,x,V):
-        return np.matmul(V,x)
-
-    def partialx(W,x,y):
-        return np.matmul(W,y)
+def partialx(W,y): #partial w.r.t x in direction y
+    return np.matmul(W.T,y)
