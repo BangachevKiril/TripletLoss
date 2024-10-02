@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def generate_GMM_data(n_components,n_samples, dim_samples,SNR, dim_components = None,pmf_components = None):
+def generate_GMM_data(n_components,n_samples, dim_samples,sigma, dim_components = None,pmf_components = None):
 
     # parameters
     if dim_components is None:
@@ -11,7 +11,7 @@ def generate_GMM_data(n_components,n_samples, dim_samples,SNR, dim_components = 
 
     #generating components
     components = np.zeros((n_components, dim_samples))
-    components[:n_components, :dim_components] = np.random.normal(loc = 0,scale = SNR,size = (n_components, dim_components))
+    components[:n_components, :dim_components] = np.random.normal(loc = 0,scale = 1,size = (n_components, dim_components))
     component_directions= np.divide(components,np.linalg.norm(components, axis = 1).reshape(n_components,1))
 
     #GENERATING SAMPLES
@@ -21,7 +21,7 @@ def generate_GMM_data(n_components,n_samples, dim_samples,SNR, dim_components = 
     sample_means_directional = component_directions[idx, :]
 
     ## Adding Noise
-    noise = np.random.normal(0,1,(n_samples,dim_samples))
+    noise = np.random.normal(0,sigma,(n_samples,dim_samples))
     noise_in_comp_direction = np.sum(np.multiply(noise,sample_means_directional),axis = 1).reshape(n_samples,1)
     noise= noise - sample_means_directional*noise_in_comp_direction
     samples= sample_means + noise
@@ -30,8 +30,11 @@ def generate_GMM_data(n_components,n_samples, dim_samples,SNR, dim_components = 
 
 
 if __name__ == '__main__':
-    (X,labels) = generate_GMM_data(5,20,10,100,2)
-    print(labels)
+    (V, X,L) = generate_GMM_data(2,20,10,1,2)
+    print(L)
+    print(V[:, :4], V.shape)
+    print(X[:4, :4], X.shape)
+
 
 
 

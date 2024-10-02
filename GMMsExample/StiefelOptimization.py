@@ -2,9 +2,9 @@ import numpy as np
 import pymanopt
 from pymanopt.manifolds import Stiefel
 from pymanopt.optimizers import ConjugateGradient
-from MainFunctions import tripletloss
+from MainFunctions import TripletLossClass
 from MainFunctions import L2distanceSquared as L2Dist
-import ProjectionEmbedding
+from GMMsExample import ProjectionEmbedding
 
 # Optimization
 import MainFunctions as mainfunc
@@ -27,7 +27,7 @@ def run(X, labels,margin):
 
 if __name__ == '__main__':
     # Data Generation
-    import GMM_Data_Generation as datagen
+    from GMMsExample import GMMDataGeneration as datagen
     import matplotlib.pyplot as plt
     n_components = 2
     n_samples = 100
