@@ -1,39 +1,54 @@
 import numpy as np
 
 
-def generate_GMM_data(n_components,n_samples, dim_samples,sigma, dim_components = None,pmf_components = None):
-
-    # parameters
+def generate_GMM_means(n_components, dim_samples, dim_components = None):
     if dim_components is None:
         dim_components = n_components
-    if pmf_components is None:
-        pmf_components = np.ones((n_components))/n_components
 
-    #generating components
+        # generating components
     components = np.zeros((n_components, dim_samples))
-    components[:n_components, :dim_components] = np.random.normal(loc = 0,scale = 1,size = (n_components, dim_components))
-    component_directions= np.divide(components,np.linalg.norm(components, axis = 1).reshape(n_components,1))
+    components[:, :dim_components] = np.random.normal(loc=0, scale=1/np.sqrt(dim_components), size=(n_components, dim_components))
+
+    return components
+
+
+def generate_GMM_samples(components, n_samples, sigma, pmf_components = None):
+    # parameters
+    (n_components, d_samples) = components.shape
+
+    if pmf_components is None:
+        pmf_components = np.ones(n_components)/n_components
 
     #GENERATING SAMPLES
     ## Choosing Components
-    idx = np.random.choice(a= np.arange(n_components), p = pmf_components,size = n_samples)
-    sample_means = components[idx, :]
-    sample_means_directional = component_directions[idx, :]
+    labels = np.random.choice(a= np.arange(n_components), p = pmf_components,size = n_samples)
+    sample_means = components[labels, :]
 
     ## Adding Noise
-    noise = np.random.normal(0,sigma,(n_samples,dim_samples))
-    noise_in_comp_direction = np.sum(np.multiply(noise,sample_means_directional),axis = 1).reshape(n_samples,1)
-    noise= noise - sample_means_directional*noise_in_comp_direction
+    noise = np.random.normal(0,sigma,(n_samples,d_samples))
     samples= sample_means + noise
 
-    return (components, samples, idx)
+    return samples, labels
 
 
 if __name__ == '__main__':
-    (V, X,L) = generate_GMM_data(2,20,10,1,2)
-    print(L)
-    print(V[:, :4], V.shape)
-    print(X[:4, :4], X.shape)
+    print("component check")
+    components = generate_GMM_means(n_components = 3, dim_samples = 4, dim_components = 2)
+    print(components)
+
+    print("component in samples check")
+    (samples,labels) = generate_GMM_samples(components, 10, 0)
+    print(labels)
+    print(samples)
+
+    print("sampels check")
+    (samples, labels) = generate_GMM_samples(components, 10, 1)
+    print(labels)
+    print(samples)
+
+
+
+
 
 
 

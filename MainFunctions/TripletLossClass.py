@@ -78,11 +78,8 @@ class tripletloss:
         @pymanopt.function.numpy(self.manifold)
         def loss(W):
             self._update_all(W)
-            A =  self._iterate(func = SingleTripletFunctions.loss, margin = self.margin,
+            return self._iterate(func = SingleTripletFunctions.loss, margin = self.margin,
                                  current_distance_matrix = self.current_distance_matrix)
-            if A< 1e-10:
-                self.num_zero_losses = self.num_zero_losses = 1
-            return A
         @pymanopt.function.numpy(self.manifold)
         def loss_grad_W(W):
             self._update_all(W)
@@ -90,11 +87,13 @@ class tripletloss:
                                  current_distance_matrix = self.current_distance_matrix,full_partials = self.full_partials)
 
         @pymanopt.function.numpy(self.manifold)
-        def loss_hess_W(W):
+        def loss_hess_W(W,in_direction):
             self._update_all(W)
-            pass
+            self._compute_full_hessian_for_L2_stiefel(in_direction)
+            return self._iterate(func = SingleTripletFunctions.loss_hess_W, margin = self.margin,
+                          current_distance_matrix = self.current_distance_matrix,full_hess_partials = self.full_hess_partials)
 
-        return (loss, loss_grad_W)
+        return (loss, loss_grad_W,loss_hess_W)
 
     def _update_triplets(self):
         numlabels = len(self.label_set)
@@ -174,6 +173,16 @@ class tripletloss:
                     if i== 5 and j== 5:
                         print(now-end," tensor product")
                 del embedding_partial_i
+
+    def _compute_full_hessian_for_L2_stiefel(self,in_direction):
+        partials_dims = [self.n_samples, self.n_samples]
+        for w in in_direction.shape:
+            partials_dims.append(w)
+        self.full_hess_partials = np.zeros(tuple(partials_dims))
+        for i in range(self.n_samples):
+            for j in range(self.n_samples):
+                u = (self.X[i, :] - self.X[j, :]).reshape(self.X.shape[1], 1)
+                self.full_hess_partials[i, j, :] = 2 * np.matmul(u, np.matmul(u.T, in_direction))
 
     def _compute_full_partials_for_L2_stiefel(self,W):
         partials_dims = [self.n_samples, self.n_samples]

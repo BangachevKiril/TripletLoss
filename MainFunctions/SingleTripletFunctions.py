@@ -10,7 +10,6 @@ def loss(a,p,n,margin, current_distance_matrix):
 def loss_grad_W(a,p,n,margin,current_distance_matrix, full_partials):
 
     if loss(a,p,n,margin, current_distance_matrix) < 1e-10:
-        print("loss is zero")
         return np.zeros(full_partials[0,0,:].shape)
 
 
@@ -22,8 +21,15 @@ def loss_grad_W(a,p,n,margin,current_distance_matrix, full_partials):
     return positive_derivative - negative_derivative
 
 
-def loss_hess_W(self,W,a,p,n):
-    pass
+def loss_hess_W(a,p,n,margin,current_distance_matrix, full_hess_partials):
+        if loss(a,p,n,margin, current_distance_matrix) < 1e-10:
+            return np.zeros(full_hess_partials[0,0,:].shape)
+
+        positive_derivative = (full_hess_partials[a, p, :] + full_hess_partials[p, a, :])
+
+        negative_derivative = (full_hess_partials[a, n, :] + full_hess_partials[n, a, :])
+
+        return positive_derivative - negative_derivative
 
 # def triplet(metric,embedding, margin, W, anchor,positive,negative):
 #     embed_anchor = embedding.evaluate(W,anchor)
